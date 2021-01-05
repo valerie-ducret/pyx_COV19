@@ -62,6 +62,28 @@ def page_introduction(state):
 
 def page_eda(state):
     st.title('Data exploration & visualization')
+    st.header("Visualization of X-rays")
+
+    if st.button("Load a subset of raw images"):
+        
+        col1, col2, col3 = st.beta_columns(3)
+        with col1:
+            path_normal="dataset/NORMAL"
+            files_normal=os.listdir(path_normal)
+            img_normal=random.choice(files_normal)
+            st.image(path_normal+'/'+img_normal, width=200, caption = "Healthy patient X-ray")
+        with col2:
+            path_viral="dataset/VIRAL"
+            files_viral=os.listdir(path_viral)
+            img_viral=random.choice(files_viral)
+            st.image(Image.open(path_viral+'/'+img_viral), width=200, caption = "Viral pneumonia X-ray")
+        with col3:
+            path_covid="dataset/COVID"
+            files_covid=os.listdir(path_covid)
+            img_covid=random.choice(files_covid)
+            st.image(Image.open(path_covid+'/'+img_covid), width=200, caption = "Covid-19 X-ray")
+        
+        st.info("It is clearly difficult, particularly for untrained people, to detect the presence of COVID-19. The difficulty also comes from the low quality of some X-rays.")
     st.write('\n\n')
     st.header('Initial dataset')
     st.write('\n\n')
@@ -127,41 +149,23 @@ def page_eda(state):
         '- The <strong>training set</strong> amounts to <strong><em>80%</em></strong> of the total data'
         '\n\n'
         '- The <strong>test set</strong> amounts to <strong><em>20%</em></strong> of the total data', unsafe_allow_html = True)
+   
+    st.header("Keras Image Generator")
 
-    st.header("Visualizations of X-rays")
-
-    if st.button("Load a subset of raw images"):
-        
-        col1, col2, col3 = st.beta_columns(3)
-        with col1:
-            path_normal="dataset/NORMAL"
-            files_normal=os.listdir(path_normal)
-            img_normal=random.choice(files_normal)
-            st.image(path_normal+'/'+img_normal, width=200, caption = "Healthy patient X-ray")
-        with col2:
-            path_viral="dataset/VIRAL"
-            files_viral=os.listdir(path_viral)
-            img_viral=random.choice(files_viral)
-            st.image(Image.open(path_viral+'/'+img_viral), width=200, caption = "Viral pneumonia X-ray")
-        with col3:
-            path_covid="dataset/COVID"
-            files_covid=os.listdir(path_covid)
-            img_covid=random.choice(files_covid)
-            st.image(Image.open(path_covid+'/'+img_covid), width=200, caption = "Covid-19 X-ray")
-        
-        st.info("It is clearly difficult, particularly for untrained people, to detect the presence of COVID-19. The difficulty also comes with the low quality of some X-rays")
-    
-    st.header("See how works image generator from Keras")
-
-    if st.button("Try image generator on COVID X-ray"):
+    if st.checkbox('Try image generator on COVID X-ray'):
+        rotation_range = st.slider('Rotation', -90, 90, 0)
+        width_shift_range = st.slider('Width shift', -1.0, 1.0, 0.0)
+        height_shift_range = st.slider('Height shift', -1.0, 1.0, 0.0)
+        zoom_range = st.slider('Zoom', -10, 10, 0)
+        shear_range = st.slider('Shear', -90, 90, 0)
         aug = ImageDataGenerator(rescale = 1./255,
-                            rotation_range = 20,
-                            width_shift_range = 0.2,
-                            height_shift_range = 0.2,
-                            zoom_range = 0.2,
-                            shear_range = 0.2,
-                            horizontal_flip = True,
-                            fill_mode = "nearest")
+                                rotation_range = rotation_range,
+                                width_shift_range = width_shift_range,
+                                height_shift_range = height_shift_range,
+                                zoom_range = zoom_range,
+                                shear_range = shear_range,
+                                horizontal_flip = True,
+                                fill_mode = "nearest")
         augmented = aug.flow_from_directory("dataset",
                                             target_size=(256,256),
                                             shuffle=True,
@@ -173,7 +177,6 @@ def page_eda(state):
         for i in range(3):
             with cols[i]:
                 st.image(x_augmented[i], use_column_width=True)
-        
         st.info("We can see that data augmentation with Keras performs random manipulations on images")
     
 # #####################
@@ -205,7 +208,7 @@ def page_cnn(state):
         '\n\n'
         'For instance, we can try to understand small filters, such as <em>contour or line detectors</em>. Using feature maps that results from the filtering, we may even get insight into the <strong>internal representation</strong> that the model has of a particular input.', unsafe_allow_html = True)    
     st.write("")
-    if st.button("Generate feature maps"):
+    if st.button("Generate a features map"):
         category_selected = st.text("Please wait...")
         path_covid="dataset/COVID"
         files_covid=os.listdir(path_covid)
@@ -215,9 +218,7 @@ def page_cnn(state):
         select_and_features_map(image) #, n_layer)
         category_selected.text("")
         st.info(
-            'You are visualizing 64 feature maps as subplots. Those maps was generated from the first output of the convolution on a COVID-19 X-ray (dimensions 224x224x64).'
-            '\n\n'
-            'It is of course possible to look further into the model, to get a better idea of the most important features used for classification.')
+            'This feature maps was generated from the first output of the convolution on a COVID-19 X-ray. It is of course possible to look further into the model, to get a better idea of the most important features used for classification.')
             #'\n\n'
             #'You can now use the slider to move to the intermediate layers.')
         
