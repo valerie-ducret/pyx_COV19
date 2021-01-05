@@ -1,3 +1,6 @@
+This dataset and readme file come from Kaggle:
+https://www.kaggle.com/tawsifurrahman/covid19-radiography-database
+
 *****COVID-19 CHEST X-RAY DATABASE
 
 
