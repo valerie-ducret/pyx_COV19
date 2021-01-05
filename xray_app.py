@@ -7,12 +7,14 @@ import os
 import matplotlib.pyplot as plt
 import modules.appsession as session
 from modules.img_classification import import_and_predict
+from modules.features_map import select_and_features_map
+from tensorflow.keras.preprocessing.image import ImageDataGenerator, img_to_array, load_img
 
 def main():
     state = session._get_state()
     pages = {
         'Introduction' : page_introduction,
-        'Data analysis & visualization' : page_eda,
+        'Data exploration & visualization' : page_eda,
         'Model building' : page_cnn,
         'Results & Interpretation' : page_results,
         'Prediction' : page_prediction,
@@ -55,11 +57,11 @@ def page_introduction(state):
         'The objective of this project is to build a <strong>multiclass classification model</strong> that can <strong>accurately predict COVID-19 from chest X-rays</strong>, and particularly discriminate from viral pneumonia or X-rays taken from healthy patients.', unsafe_allow_html = True)
     
 # ####################################
-# Page Data analysis & visualization #
+# Page Data exploration & visualization #
 # ####################################
 
 def page_eda(state):
-    st.title('Data analysis & visualization')
+    st.title('Data exploration & visualization')
     st.write('\n\n')
     st.header('Initial dataset')
     st.write('\n\n')
@@ -76,45 +78,45 @@ def page_eda(state):
         '\n\n'
         '<u>Note:</u> On <strong><em>December the 12th of 2020</em></strong>, the number of images in the COVID-19 category from <em>Kaggle</em> increased to 1143 and the images were resized to <strong>256x256 pixels</strong>.', unsafe_allow_html = True)
     
-    if st.button("Load a subset of images"):
-        path_normal="dataset/NORMAL"
-        files_normal=os.listdir(path_normal)
-        img_normal=random.choice(files_normal)
-        st.image(Image.open(path_normal+'/'+img_normal), width=100, caption = "Healthy patient X-ray")
+    st.header("Data distribution")
 
-        #col1, col2, col3 = st.beta_columns(3)
-        #with col1:
-        #    path_normal="/kaggle/input/covid19-radiography-database/COVID-19 Radiography Database/COVID-19"
-        #    files_normal=os.listdir(path_normal)
-        #    img_normal=random.choice(files_normal)
-        #    st.image(img_normal, width=100, caption = "Healthy patient X-ray")
-        #with col2:
-        #    path_viral="/kaggle/input/covid19-radiography-database/COVID-19 Radiography Database/NORMAL"
-        #    files_viral=os.listdir(path_viral)
-        #    img_viral=random.choice(files_viral)
-        #    st.image(Image.open(), width=100, caption = "Viral pneumonia X-ray")
-        #with col3:
-        #    path_covid="/kaggle/input/covid19-radiography-database/COVID-19 Radiography Database/Viral Pneumonia"
-        #    files_covid=os.listdir(path_covid)
-        #    img_covid=random.choice(files_covid)
-        #    st.image(Image.open(), width=100, caption = "Covid-19 X-ray")
-    
-    initial_data_count = pd.read_csv('static/initial_data_count.csv')
-    fig = plt.figure(figsize = (12,12))
-    labels = initial_data_count.label.tolist()
-    data = initial_data_count['count'].tolist()
-    plt.pie(x = data,
-            autopct = "%.1f%%",
-            explode = [0,0,0.2],
-            labels = labels,
-            pctdistance = 0.5,
-            textprops = {'fontsize': 14},
-    )
-    plt.title('Distribution of data per class', fontsize = 12)
-    st.write('\n\n')
-    st.pyplot(fig)
+    table_dataset = pd.DataFrame({
+        "COVID-19":[219, 1143],
+        "Normal": [1341, 1341],
+        "Viral Pneumonia": [1345, 1345],
+        "Image size": ["1024 x 1024", "256 x 256"]
+    }, index=["First dataset", "Second dataset"])
+
+    # Display table
+    st.write(table_dataset)
+
+    # Display piechart
+    if st.checkbox("Show Pie Charts"):
+        fig, (ax1, ax2) = plt.subplots(1,2, figsize = (12,12), constrained_layout=True)
+        labels = 'COVID-19', 'Healthy patients', 'Viral pneumonia'
+        size1 = [219, 1341, 1345]
+        size2 = [1143, 1341, 1345]
+        explode = (0.1, 0, 0)  # only "explode" the 1er slice (i.e. 'covid')
+        ax1.pie(x = size1,
+                autopct = "%.1f%%",
+                explode = (0.2, 0, 0),
+                labels = labels,
+                pctdistance = 0.6,
+                shadow=True,
+                textprops = {'fontsize': 13},
+        )
+        ax2.pie(x = size2,
+                autopct = "%.1f%%",
+                explode = explode,
+                labels = labels,
+                pctdistance = 0.6,
+                shadow=True,
+                textprops = {'fontsize': 13},
+        )
+        st.pyplot(fig)
+
     st.write(
-        'The data is <strong>unbalanced</strong> in favor of the main target variable which is the COVID-19 label. To compensate for the unbalanced dataset, two ideas were opted, namely <strong>data augmentation</strong> and <strong>adjusting class weights</strong>.'
+        'The initial dataset is strongly <strong>imbalanced</strong> in favor of the main target variable which is the COVID-19 label. To compensate for it, but also to obtain a robust model, two ideas were opted, namely <strong>adjusting class weights</strong> and <strong>data augmentation</strong>.'
         '\n\n'
         '<strong>Data augmentation</strong> corresponds to a data analysis technique that is used to increase the amount of data by modifying copies of already existing data. These modifications consist of applying <strong>geometric transformations</strong> such as <em>flipping</em>, <em>cropping</em>, <em>rotation</em> etc.'
         '\n\n'
@@ -126,6 +128,54 @@ def page_eda(state):
         '\n\n'
         '- The <strong>test set</strong> amounts to <strong><em>20%</em></strong> of the total data', unsafe_allow_html = True)
 
+    st.header("Visualizations of X-rays")
+
+    if st.button("Load a subset of raw images"):
+        
+        col1, col2, col3 = st.beta_columns(3)
+        with col1:
+            path_normal="dataset/NORMAL"
+            files_normal=os.listdir(path_normal)
+            img_normal=random.choice(files_normal)
+            st.image(path_normal+'/'+img_normal, width=200, caption = "Healthy patient X-ray")
+        with col2:
+            path_viral="dataset/VIRAL"
+            files_viral=os.listdir(path_viral)
+            img_viral=random.choice(files_viral)
+            st.image(Image.open(path_viral+'/'+img_viral), width=200, caption = "Viral pneumonia X-ray")
+        with col3:
+            path_covid="dataset/COVID"
+            files_covid=os.listdir(path_covid)
+            img_covid=random.choice(files_covid)
+            st.image(Image.open(path_covid+'/'+img_covid), width=200, caption = "Covid-19 X-ray")
+        
+        st.info("It is clearly difficult, particularly for untrained people, to detect the presence of COVID-19. The difficulty also comes with the low quality of some X-rays")
+    
+    st.header("See how works image generator from Keras")
+
+    if st.button("Try image generator on COVID X-ray"):
+        aug = ImageDataGenerator(rescale = 1./255,
+                            rotation_range = 20,
+                            width_shift_range = 0.2,
+                            height_shift_range = 0.2,
+                            zoom_range = 0.2,
+                            shear_range = 0.2,
+                            horizontal_flip = True,
+                            fill_mode = "nearest")
+        augmented = aug.flow_from_directory("dataset",
+                                            target_size=(256,256),
+                                            shuffle=True,
+                                            class_mode="categorical",
+                                            batch_size= 10,
+                                            save_to_dir=None)
+        x_augmented, y_augmented = next(augmented)
+        cols = st.beta_columns(3)
+        for i in range(3):
+            with cols[i]:
+                st.image(x_augmented[i], use_column_width=True)
+        
+        st.info("We can see that data augmentation with Keras performs random manipulations on images")
+    
 # #####################
 # Page Model building #
 # #####################
@@ -135,13 +185,42 @@ def page_cnn(state):
     st.write('\n\n')
     st.warning('Given that two different datasets were used since the last update on *Kaggle*, two *identical* models were trained on the images. Here we will show you the results of both models and compare them as far as metrics are concerned.')
     st.write(
-        'To build our efficient <strong>Convolutional Neural Network</strong>, we used the <strong>transfer learning</strong> technique which allows us to benefit from a relatively small computation time which aims to saving training time and weights of a <em>pre-trained</em> model to better the performance of neural networks. Finally, this technique does not need a huge amount of data.'
+        'To build our efficient <strong>Convolutional Neural Network</strong>, we used the <strong>transfer learning</strong> technique which allows us to benefit from a relatively small computation time which aims to saving training time and weights of a <em>pre-trained</em> model to increase the algorithm performance. Finally, this technique does not need a huge amount of data to get really efficient prediction of COVID-19.'
         '\n\n'
-        'Indeed, we used a pre-trained <strong>VGG16</strong> model and built a relatively simple classification model.', unsafe_allow_html = True)
+        'Thus, we used a pre-trained <strong>VGG16</strong> model and built a relatively simple classification model.', unsafe_allow_html = True)
     st.header('Architecture')
     st.write('\n\n')
     img = Image.open('static/VGG16_architecture.jpg')
     st.image(img, use_column_width = True)
+    st.write(
+        '\n\n'
+        'Interestingly, the simple addition of dense layers with decreasing units after the convolution part was clearly increasing classification accuracy.')
+    
+    st.header('Visualize the feature maps during convolution')
+    st.write('\n\n')
+    st.write(
+        'Convolutional Neural Network models have impressive <strong>classification performance</strong>. Yet it is not clear <em>why</em> they perform so well and thus <em>how</em> they might be improved.'
+        '\n\n'
+        'Those models use linear filters, which results in activation maps or features maps. Both filters and feature maps can be visualized.'
+        '\n\n'
+        'For instance, we can try to understand small filters, such as <em>contour or line detectors</em>. Using feature maps that results from the filtering, we may even get insight into the <strong>internal representation</strong> that the model has of a particular input.', unsafe_allow_html = True)    
+    st.write("")
+    if st.button("Generate feature maps"):
+        category_selected = st.text("Please wait...")
+        path_covid="dataset/COVID"
+        files_covid=os.listdir(path_covid)
+        img_covid=random.choice(files_covid)
+        image = path_covid+'/'+img_covid
+        #n_layer = st.slider("output layer's number", 1,2)
+        select_and_features_map(image) #, n_layer)
+        category_selected.text("")
+        st.info(
+            'You are visualizing 64 feature maps as subplots. Those maps was generated from the first output of the convolution on a COVID-19 X-ray (dimensions 224x224x64).'
+            '\n\n'
+            'It is of course possible to look further into the model, to get a better idea of the most important features used for classification.')
+            #'\n\n'
+            #'You can now use the slider to move to the intermediate layers.')
+        
     st.header('Training hyperparameters')
     st.write('\n\n')
     st.write(
@@ -155,7 +234,7 @@ def page_cnn(state):
         '\n\n'
         'Here we chose to monitor the <strong>validation loss function</strong>, that is to say that the learning rate would be reduced when the quantity has stopped decreasing.'
         '\n\n'
-        'The fine-tuned model was fit using the adjusted class weights on <em>40 epochs</em> and the aforementioned callback.', unsafe_allow_html = True)
+        'The fine-tuned model was fit using the adjusted class weights on <em>30 epochs</em> and the aforementioned callback.', unsafe_allow_html = True)
         
 # ###############################
 # Page Results & Interpretation #
@@ -164,7 +243,7 @@ def page_cnn(state):
 def page_results(state):
     st.title('Results')
     with st.beta_expander('Display results for the first model'):
-        st.subheader('Model trained on initial data (*unbalanced dataset*)')
+        st.subheader('Model trained on the initial dataset (*imbalanced dataset*)')
         st.write('\n\n')
         st.info('In medicine and biological fields, having a **low false negative rate** is the priority since making decisions upon tests with higher false negative rates or smaller recalls could be lethal.')
         st.write('Here, we created a <em>normalized</em> confusion matrix in such a way that only the recalls are shown.', unsafe_allow_html = True)
@@ -176,8 +255,17 @@ def page_results(state):
         st.write(
             '\n\n'
             '<u>Classification report</u>', unsafe_allow_html = True)
-        cr_img = Image.open('static/VGG16_first_model_classification_report.png')
-        st.image(cr_img, width = 500)
+
+        classification_firstmodel = pd.DataFrame({
+            "precision":[0.91,0.89,0.97," "," ", 0.92, 0.93],
+            "recall": [0.98, 0.96, 0.88," "," ", 0.94, 0.93],
+            "f1-score": [0.95, 0.93, 0.92," ",0.93, 0.93, 0.93],
+            "support": [44, 268,269, " ", 581, 581, 581]
+        }, index=["COVID-19", "NORMAL", "VIRAL", " ", "accuracy", "macro avg", "weighted avg"])
+
+        # Display classification report
+        st.write(classification_firstmodel)
+
         st.write('\n\n')
         st.write(
             '\n\n'
@@ -194,15 +282,23 @@ def page_results(state):
         st.write(
             '\n\n'
             '<u>Classification report</u>', unsafe_allow_html = True)
-        ft_cr_img = Image.open('static/VGG16_finetuned_first_model_classification_report.png')
-        st.image(ft_cr_img, width = 500)
+
+        classification_firstmodel_tuned = pd.DataFrame({
+            "precision":[0.98,0.93,0.99," "," ", 0.97, 0.96],
+            "recall": [0.98, 1.00, 0.93," "," ", 0.97, 0.96],
+            "f1-score": [0.98, 0.96, 0.96," ",0.96, 0.97, 0.96],
+            "support": [44, 268,269, " ", 581, 581, 581]
+        }, index=["COVID-19", "NORMAL", "VIRAL", " ", "accuracy", "macro avg", "weighted avg"])
+        # Display classification report
+        st.write(classification_firstmodel_tuned)
+        
         st.write('\n\n')
         st.write(
             '\n\n'
             'Regarding the fine-tuned model, we obtained a very accurate classification on the test set with <strong>96% accuracy</strong>, <strong>99% AUC</strong> and <strong>96% F1-score</strong>.'
             '\n\n'
             'The <strong>recalls</strong> for <em>COVID-19</em> and <em>normal</em> X-rays are almost perfect (respectively <strong>98%</strong> and <strong>100%</strong>), only the <em>viral pneumonia</em> category has a smaller recall, yet it is still important with a high value of <strong>93%</strong>. Only 7% of images are predicted as normal.', unsafe_allow_html = True)
-    st.subheader('Model trained on updated data')
+    st.subheader('Model trained on the last dataset (*increased dataset*)')
     st.write('\n\n')
     st.write(
         '\n\n'
@@ -212,8 +308,16 @@ def page_results(state):
     st.write(
         '\n\n'
         '<u>Classification report</u>', unsafe_allow_html = True)
-    cr_img = Image.open('static/VGG16_second_model_classification_report.png')
-    st.image(cr_img, width = 500)
+
+    classification_secondmodel = pd.DataFrame({
+        "precision":[0.96,0.93,0.91," "," ", 0.93, 0.93],
+        "recall": [0.96, 0.93, 0.91," "," ", 0.93, 0.93],
+        "f1-score": [0.96, 0.93, 0.91," ",0.93, 0.93, 0.93],
+        "support": [229, 268,269, " ", 766, 766, 766]
+    }, index=["COVID-19", "NORMAL", "VIRAL", " ", "accuracy", "macro avg", "weighted avg"])
+    # Display classification report
+    st.write(classification_secondmodel)
+
     st.write('\n\n')
     st.write(
         '\n\n'
@@ -230,8 +334,16 @@ def page_results(state):
     st.write(
         '\n\n'
         '<u>Classification report</u>', unsafe_allow_html = True)
-    ft_cr_img = Image.open('static/VGG16_finetuned_second_model_classification_report.png')
-    st.image(ft_cr_img, width = 500)
+
+    classification_secondmodel_tuned = pd.DataFrame({
+        "precision":[0.99,0.96,0.97," "," ", 0.97, 0.97],
+        "recall": [1.00, 0.97, 0.96," "," ", 0.98, 0.97],
+        "f1-score": [1.00, 0.96, 0.97," ",0.97, 0.97, 0.97],
+        "support": [229, 268,269, " ", 766, 766, 766]
+    }, index=["COVID-19", "NORMAL", "VIRAL", " ", "accuracy", "macro avg", "weighted avg"])
+    # Display classification report
+    st.write(classification_secondmodel_tuned)
+
     st.write('\n\n')
     st.write(
         '\n\n'
@@ -268,20 +380,20 @@ def page_conclusion(state):
     st.title('Summary')
     st.write('\n\n')
     st.write(
-        "Working on this project at the very moment of the outbreak has us feel as though we're partaking as an important part of society as we're trying to assist radiologists and all the medical personnel working on the front line as best we can think of knowing."
+        "Working on this project at the very moment of the outbreak made us feel useful and helpful as we're trying to assist radiologists and all the medical personnel hardly working on the front line."
         '\n\n'
-        "What's interesting is that we've showcased our knowledge and skills on two fields that's breathtaking to us and that weaves perfectly together that is Artificial Intelligence and Medicine."
+        "What's interesting is that we've showcased our knowledge and skills on two fields that's breathtaking to us and that weaves perfectly together: Artificial Intelligence and Medicine."
         '\n\n'
-        "We had a real pleasure in working on this project and it has been an unforgettable journey along which we've struggled with figuring out how to deal with the imbalanced dataset regarding the COVID-19 images, building a multiclass classification model that's not overfitting or trying to interpret what the CNN is visualizing when training."
+        "We had a real pleasure in working on this project and it has been an unforgettable journey along which we've struggled with figuring out how to deal with the imbalanced dataset regarding the COVID-19 images, building a multiclass classification model that's not overfitting or trying to work out the features contribution of our CNN."
         '\n\n'
         "Nonetheless, we're proud of displaying our work in a WebApp that hopefully will teach and entertain at the same time."
         '\n\n'
-        'To summarize, with our model, we could demonstrate the very efficient method of <strong>deep transfer learning</strong> for radiography analyses and diagnosis, with an appropriate architecture and fine-tuning parameters.', unsafe_allow_html = True)
+        'To summarize, with our model, we could demonstrate the efficiency of <strong>deep transfer learning</strong> for radiography analyses and diagnosis, with an appropriate architecture and fine-tuning parameters.', unsafe_allow_html = True)
     with st.beta_expander('Bonus'):
         st.write(
             'It can be very useful and interesting to <strong>visualize</strong> what the <strong>Convolutional Neural Network</strong> values when it does a prediction.'
             '\n\n'
-            "For non-technical people from the medical field, especially in <em>radiology</em>, it's important to know the difference and discriminate X-Rays between of a <strong>normal</strong> case from that of a <strong>COVID-19</strong> case or <strong>Viral Pneumonia</strong> Fortunately, it is possible to visualize what the CNN model deems as <strong>significant features</strong>."
+            "For non-technical people in the medical field, especially in <em>radiology</em>, it's important to know the difference and discriminate <strong>healthy patient</strong> X-Rays from that of a <strong>COVID-19</strong> case or <strong>Viral Pneumonia</strong> case. Fortunately, it is possible to visualize what the CNN deems as <strong>significant features</strong>."
             '\n\n'
             'Hence, introducing the <strong>Grad-CAM class activation maps</strong> (<em>GRADient-weighted Class Activation Mapping</em>). Grad-CAM class activation maps generate <strong>heatmaps</strong> at the <em>convolutional</em> level rather than the <em>dense neural layer</em> level, taking into account more spatial details.'
             '\n\n'
@@ -289,13 +401,11 @@ def page_conclusion(state):
         covid_gradcam = Image.open('static/gradcam_covid.jpg')
         st.image(covid_gradcam, use_column_width = True)
         st.info(
-            'Our model focuses particularly on the **end of the rib cage** from both lungs or either one of them. Maybe some virus particles are living in that area and may be the reason why shortness of breath and acute pain in the rib cage happens.')
+            'We see from the localization map that both lungs express the characteristics of COVID-19, particularly at the **end of the rib cage**, that is presumably the inflammation of the alveoli (i.e. the small air sacs containing oxygen that crosses into bloodstreams are filled up by fluid). Indeed, recent studies highlighted that, contrarily to other pneumonia-caused viruses, COVID-19 is affecting both lungs.')
         st.write(
             "For some unknown reasons, this interpretation technique didn't work properly for all images. Unfortunately, we didn't have enough time to focus more on figuring out how we could adjust the code behind Grad-CAM and display a set of images chosen by the user.", unsafe_allow_html = True)
-# ask if Valérie can add more details on the interpretation biologically speaking
-# symptoms ? model focuses on those specific parts of the lungs ?
         st.info(
-            'There are improvements that can still be made to this project. One remaining problem is to understand how the model learned to classify the images for each category (model interpretability). By highlighting the most important features, we could potentially show the characteristics of contracting COVID-19 and those features could be used for further model exploration such as the evolution of the disease through time, or a comparison between population categories (age, gender, ...).')
+            'There are improvements that can still be made to this project. One remaining problem is to understand how the model learned to classify the images for each category (model interpretability). By highlighting the most important features, we could potentially show the characteristics of contracting COVID-19 and those features could be used for further model exploration such as the evolution of the disease through time, or a comparison of pulmonaries symptoms between population categories (age, gender, ...).')
 
 # #####################################
 

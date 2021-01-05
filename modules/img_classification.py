@@ -31,7 +31,7 @@ def f1_m(y_true, y_pred):
     
 @st.cache(allow_output_mutation=True)
 def get_model():
-    model = keras.models.load_model('fine_tuned_vgg16_second_model.h5', custom_objects = {'f1_m' : f1_m})
+    model = keras.models.load_model('model/fine_tuned_vgg16_second_model.h5', custom_objects = {'f1_m' : f1_m})
     print('Model Loaded')
     return model 
 
