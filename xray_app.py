@@ -188,11 +188,10 @@ def page_eda(state):
 def page_cnn(state):
     st.title('CNN Modelling')
     st.write('\n\n')
-    st.warning('Given that two different datasets were used since the last update on *Kaggle*, two *identical* models were trained on the images. Here we will show you the results of both models and compare them as far as metrics are concerned.')
     st.write(
-        'To build our efficient <strong>Convolutional Neural Network</strong>, we used the <strong>transfer learning</strong> technique which allows us to benefit from a relatively small computation time which aims to saving training time and weights of a <em>pre-trained</em> model to increase the algorithm performance. Finally, this technique does not need a huge amount of data to get really efficient prediction of COVID-19.'
+        'To build our efficient <strong>Convolutional Neural Network</strong>, we used the <strong>transfer learning</strong> technique that allows us to benefit from a relatively small computation time, and thus to save training time, and weights of a <em>pre-trained</em> model to increase the algorithm performance. Finally, this technique does not need a huge amount of X-rays data to get really efficient prediction of COVID-19.'
         '\n\n'
-        'Thus, we used a pre-trained <strong>VGG16</strong> model and built a relatively simple classification model.', unsafe_allow_html = True)
+        'Therefore, we imported a <strong>VGG16</strong> model pre-trained on ImageNet and we built a classifier made of <strong>dense</strong> and <strong>dropout</strong> layers.', unsafe_allow_html = True)
     st.header('Architecture')
     st.write('\n\n')
     img = Image.open('static/VGG16_architecture.jpg')
@@ -222,56 +221,62 @@ def page_cnn(state):
                 files_covid=os.listdir(path_covid)
                 img_covid=random.choice(files_covid)
                 image = path_covid+'/'+img_covid
-                n_layer = st.select_slider("output layer's number", [1,2,4,5,7,8,9,11,12,13,15,16,17])
+                n_layer = st.select_slider("Convolution layer", [1,2,4,5,7,8,9,11,12,13,15,16,17])
                 select_and_features_map(image, n_layer = n_layer)
                 waiting_text.text("")
                 st.info(
-                    'You are visualizing 64 feature maps as subplots. Those maps were generated from the selected convolutional layer which input is a COVID-19 X-ray (dimension 224x224x64).'
+                    'You are visualizing 64 feature maps as subplots. Those maps were generated from the selected convolutional having a COVID-19 X-ray as input.'
                     '\n\n'
                     'The feature maps ***close to the input*** detect **small** or **fine-grained details**, whereas feature maps ***close to the output*** of the model capture more **general features**.'
                     '\n\n'
-                    'We can see that the result of applying filters in the first convolutional layer, for instance, is a lot of versions of X-ray with different features highlighted. For example, some highlight lines, other focus on the background or the foreground.'
+                    'We can see that the result of applying filters in the first convolutional layer is a lot of versions of X-ray with different features highlighted. For example, some highlight lines, other focus on the background or the foreground.'
                     '\n\n'
-                    'Bright areas are the ***activated*** regions, meaning the filter detected the pattern it was looking for.')
+                    'Bright areas are the ***activated*** regions, meaning the filter detected the pattern it was looking for.'
+                    '\n\n'
+                    'You can move the slider to see the feature maps of the other convolution layers (number 17 corresponds to the last one).')
             elif category=="NORMAL":
                 path_normal="dataset/NORMAL"
                 files_normal=os.listdir(path_normal)
                 img_normal=random.choice(files_normal)
                 image = path_normal+'/'+img_normal
-                n_layer = st.select_slider("output layer's number", [1,2,4,5,7,8,9,11,12,13,15,16,17])
+                n_layer = st.select_slider("Convolution layer", [1,2,4,5,7,8,9,11,12,13,15,16,17])
                 select_and_features_map(image, n_layer = n_layer)
                 waiting_text.text("")
                 st.info(
-                    "You are visualizing 64 feature maps as subplots. Those maps were generated from the selected convolutional layer which input is a healthy patient's X-ray (dimension 224x224x64)."
+                    "You are visualizing 64 feature maps as subplots. Those maps were generated from the selected convolutional layer having a healthy patient's X-ray as input."
                     '\n\n'
                     'The feature maps ***close to the input*** detect **small** or **fine-grained details**, whereas feature maps ***close to the output*** of the model capture more **general features**.'
                     '\n\n'
-                    'We can see that the result of applying filters in the first convolutional layer, for instance, is a lot of versions of X-ray with different features highlighted. For example, some highlight lines, other focus on the background or the foreground.'
+                    'We can see that the result of applying filters in the first convolutional layer is a lot of versions of X-ray with different features highlighted. For example, some highlight lines, other focus on the background or the foreground.'
                     '\n\n'
-                    'Bright areas are the ***activated*** regions, meaning the filter detected the pattern it was looking for.')
+                    'Bright areas are the ***activated*** regions, meaning the filter detected the pattern it was looking for.'
+                    '\n\n'
+                    'You can move the slider to see the feature maps of the other convolution layers (number 17 corresponds to the last one).')
             else:
                 path_viral="dataset/VIRAL"
                 files_viral=os.listdir(path_viral)
                 img_viral=random.choice(files_viral)
                 image = path_viral+'/'+img_viral
-                n_layer = st.select_slider("output layer's number", [1,2,4,5,7,8,9,11,12,13,15,16,17])
+                n_layer = st.select_slider("Convolution layer", [1,2,4,5,7,8,9,11,12,13,15,16,17])
                 select_and_features_map(image, n_layer = n_layer)
                 waiting_text.text("")
                 st.info(
-                    'You are visualizing 64 feature maps as subplots. Those maps were generated from the selected convolutional layer which input is a viral pneumonia X-ray (dimension 224x224x64).'
+                    'You are visualizing 64 feature maps as subplots. Those maps were generated from the selected convolutional layer having a viral pneumonia X-ray as input.'
                     '\n\n'
                     'The feature maps ***close to the input*** detect **small** or **fine-grained details**, whereas feature maps ***close to the output*** of the model capture more **general features**.'
                     '\n\n'
-                    'We can see that the result of applying filters in the first convolutional layer, for instance, is a lot of versions of X-ray with different features highlighted. For example, some highlight lines, other focus on the background or the foreground.'
+                    'We can see that the result of applying filters in the first convolutional layer is a lot of versions of X-ray with different features highlighted. For example, some highlight lines, other focus on the background or the foreground.'
                     '\n\n'
-                    'Bright areas are the ***activated*** regions, meaning the filter detected the pattern it was looking for.')
+                    'Bright areas are the ***activated*** regions, meaning the filter detected the pattern it was looking for.'
+                    '\n\n'
+                    'You can move the slider to see the feature maps of the other convolution layers (number 17 corresponds to the last one).')
 
     st.header('Training hyperparameters')
     st.write('\n\n')
     st.write(
         'The model was compiled with the <strong>Adam optimizer</strong> and an initial <strong>learning rate</strong> of <em>0.001</em>.'
         '\n\n'
-        'The <strong>loss function</strong> used was a <strong>sparse categorical cross-entropy</strong> and the <strong>metrics</strong> used were <strong>accuracy</strong>, <strong>AUC</strong> (<strong><em>Area Under the Receiver Operating Characteristic Curve</em></strong>) and <strong>F1-score</strong>.'
+        'The <strong>loss function</strong> used was a <strong>sparse categorical cross-entropy</strong> and the <strong>metrics</strong> used were <strong>accuracy</strong>, <strong>AUC</strong> (<strong><em>Area Under the Receiver Operating Characteristic Curve</em></strong>) and a <strong>F1-score</strong> that we defined using <em>recall</em> and <em>precision</em>.'
         '\n\n'
         'The model was fit using the adjusted class weights on <em>20 epochs</em>. '
         '\n\n'
@@ -287,6 +292,9 @@ def page_cnn(state):
 
 def page_results(state):
     st.title('Results')
+    st.write('\n\n')
+    st.warning('Given that two different datasets were used since the last update on *Kaggle*, two *identical* models were trained on the images. Here we will show you the results of both models and compare them as far as metrics are concerned.')
+    st.write('\n\n')
     with st.beta_expander('Display results for the first model'):
         st.subheader('Model trained on the initial dataset (*imbalanced dataset*)')
         st.write('\n\n')
@@ -425,7 +433,7 @@ def page_conclusion(state):
     st.title('Summary')
     st.write('\n\n')
     st.write(
-        "Working on this project at the very moment of the outbreak made us feel useful and helpful as we're trying to assist radiologists and all the medical personnel hardly working on the front line."
+        "Working on this project at the very moment of the outbreak made us feel useful and helpful as we're trying to assist radiologists and all the medical personnel hardly working in the front line."
         '\n\n'
         "What's interesting is that we've showcased our knowledge and skills on two fields that's breathtaking to us and that weaves perfectly together: Artificial Intelligence and Medicine."
         '\n\n'
