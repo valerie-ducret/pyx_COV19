@@ -25,14 +25,16 @@ def main():
     page = st.sidebar.selectbox('', tuple(pages.keys()))
     pages[page](state)
     state.sync()
-    st.sidebar.info(
-        'DataScientest Project - October 2020 Bootcamp Class'
+    st.sidebar.write(
+        'DataScientest Project'
         '\n\n'
-        'Authors:'
+        'October 2020 Bootcamp Class'
         '\n\n'
-        'Kévin PAME'
+        '<u>Authors:</u>'
         '\n\n'
-        'Valérie DUCRET')
+        '<strong>Kévin PAME</strong> [linkedin](https://www.linkedin.com/in/k%C3%A9vin-pame-9a138914b/)'
+        '\n\n'
+        '<strong>Valérie DUCRET</strong> [linkedin](https://www.linkedin.com/in/val%C3%A9rie-ducret-104a3526/)', unsafe_allow_html=True)
 
 # ###################
 # Page Introduction #
@@ -118,7 +120,7 @@ def page_eda(state):
         labels = 'COVID-19', 'Healthy patients', 'Viral pneumonia'
         size1 = [219, 1341, 1345]
         size2 = [1143, 1341, 1345]
-        explode = (0.1, 0, 0)  # only "explode" the 1er slice (i.e. 'covid')
+        explode = (0.1, 0, 0)  # only "explode" the 1st slice (i.e. 'covid')
         ax1.pie(x = size1,
                 autopct = "%.1f%%",
                 explode = (0.2, 0, 0),
@@ -204,24 +206,66 @@ def page_cnn(state):
     st.write(
         'Convolutional Neural Network models have impressive <strong>classification performance</strong>. Yet it is not clear <em>why</em> they perform so well and thus <em>how</em> they might be improved.'
         '\n\n'
-        'Those models use linear filters, which results in activation maps or features maps. Both filters and feature maps can be visualized.'
+        'Those models use filters performing the <em>convolution operation</em> and result in <strong>activation maps</strong> or <strong>features maps</strong>. These <strong>activation maps</strong> capture the result of applying filters to an input such as the input image or another feature map. Both filters and feature maps can be visualized.'
         '\n\n'
-        'For instance, we can try to understand small filters, such as <em>contour or line detectors</em>. Using feature maps that results from the filtering, we may even get insight into the <strong>internal representation</strong> that the model has of a particular input.', unsafe_allow_html = True)    
+        'For instance, we can try to understand small filters, such as <em>contour or line detectors</em>. Using feature maps that result from the filtering, we may even get insight into the <strong>internal representation</strong> that the model has of a particular input.'
+        '\n\n'
+        'The idea of visualizing a feature map for a specific input image would be to understand what features of the input are detected in the feature maps.', unsafe_allow_html = True)    
     st.write("")
-    if st.button("Generate a features map"):
-        category_selected = st.text("Please wait...")
-        path_covid="dataset/COVID"
-        files_covid=os.listdir(path_covid)
-        img_covid=random.choice(files_covid)
-        image = path_covid+'/'+img_covid
-        #n_layer = st.slider("output layer's number", 1,2)
-        select_and_features_map(image) #, n_layer)
-        category_selected.text("")
-        st.info(
-            'This feature maps was generated from the first output of the convolution on a COVID-19 X-ray. It is of course possible to look further into the model, to get a better idea of the most important features used for classification.')
-            #'\n\n'
-            #'You can now use the slider to move to the intermediate layers.')
-        
+    if st.checkbox("Generate a feature map"):
+        category=st.selectbox("Choose the category", ("<select>","COVID","NORMAL","VIRAL PNEUMONIA"))
+        if category !="<select>":
+            st.write("You selected", category)
+            waiting_text = st.text("Please wait...")
+            if category=="COVID":
+                path_covid="dataset/COVID"
+                files_covid=os.listdir(path_covid)
+                img_covid=random.choice(files_covid)
+                image = path_covid+'/'+img_covid
+                n_layer = st.select_slider("output layer's number", [1,2,4,5,7,8,9,11,12,13,15,16,17])
+                select_and_features_map(image, n_layer = n_layer)
+                waiting_text.text("")
+                st.info(
+                    'You are visualizing 64 feature maps as subplots. Those maps were generated from the selected convolutional layer which input is a COVID-19 X-ray (dimension 224x224x64).'
+                    '\n\n'
+                    'The feature maps ***close to the input*** detect **small** or **fine-grained details**, whereas feature maps ***close to the output*** of the model capture more **general features**.'
+                    '\n\n'
+                    'We can see that the result of applying filters in the first convolutional layer, for instance, is a lot of versions of X-ray with different features highlighted. For example, some highlight lines, other focus on the background or the foreground.'
+                    '\n\n'
+                    'Bright areas are the ***activated*** regions, meaning the filter detected the pattern it was looking for.')
+            elif category=="NORMAL":
+                path_normal="dataset/NORMAL"
+                files_normal=os.listdir(path_normal)
+                img_normal=random.choice(files_normal)
+                image = path_normal+'/'+img_normal
+                n_layer = st.select_slider("output layer's number", [1,2,4,5,7,8,9,11,12,13,15,16,17])
+                select_and_features_map(image, n_layer = n_layer)
+                waiting_text.text("")
+                st.info(
+                    "You are visualizing 64 feature maps as subplots. Those maps were generated from the selected convolutional layer which input is a healthy patient's X-ray (dimension 224x224x64)."
+                    '\n\n'
+                    'The feature maps ***close to the input*** detect **small** or **fine-grained details**, whereas feature maps ***close to the output*** of the model capture more **general features**.'
+                    '\n\n'
+                    'We can see that the result of applying filters in the first convolutional layer, for instance, is a lot of versions of X-ray with different features highlighted. For example, some highlight lines, other focus on the background or the foreground.'
+                    '\n\n'
+                    'Bright areas are the ***activated*** regions, meaning the filter detected the pattern it was looking for.')
+            else:
+                path_viral="dataset/VIRAL"
+                files_viral=os.listdir(path_viral)
+                img_viral=random.choice(files_viral)
+                image = path_viral+'/'+img_viral
+                n_layer = st.select_slider("output layer's number", [1,2,4,5,7,8,9,11,12,13,15,16,17])
+                select_and_features_map(image, n_layer = n_layer)
+                waiting_text.text("")
+                st.info(
+                    'You are visualizing 64 feature maps as subplots. Those maps were generated from the selected convolutional layer which input is a viral pneumonia X-ray (dimension 224x224x64).'
+                    '\n\n'
+                    'The feature maps ***close to the input*** detect **small** or **fine-grained details**, whereas feature maps ***close to the output*** of the model capture more **general features**.'
+                    '\n\n'
+                    'We can see that the result of applying filters in the first convolutional layer, for instance, is a lot of versions of X-ray with different features highlighted. For example, some highlight lines, other focus on the background or the foreground.'
+                    '\n\n'
+                    'Bright areas are the ***activated*** regions, meaning the filter detected the pattern it was looking for.')
+
     st.header('Training hyperparameters')
     st.write('\n\n')
     st.write(

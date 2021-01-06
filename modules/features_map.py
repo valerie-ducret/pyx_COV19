@@ -34,11 +34,11 @@ def get_model():
     return model 
 
 @st.cache(allow_output_mutation=True, suppress_st_warning=True, show_spinner=False)
-def select_and_features_map(image):
+def select_and_features_map(image, n_layer):
     # load the model
     model = get_model()
     # redefine model to output right after the first hidden layer
-    model_select = Model(inputs=model.inputs, outputs=model.layers[1].output)
+    model_select = Model(inputs=model.inputs, outputs=model.layers[n_layer].output)
     # load the image with the required shape
     img = load_img(image, target_size=(224, 224))
     # convert the image to an array
