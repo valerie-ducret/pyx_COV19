@@ -30,7 +30,7 @@ def f1_m(y_true, y_pred):
 
 @st.cache(allow_output_mutation=True, show_spinner=False)
 def get_model():
-    model = keras.models.load_model('https://github.com/valerie-ducret/pyx_COV19/tree/main/model/fine_tuned_vgg16_second_model.h5', custom_objects = {'f1_m' : f1_m})
+    model = keras.models.load_model('../model/fine_tuned_vgg16_second_model.h5', custom_objects = {'f1_m' : f1_m})
     return model 
 
 @st.cache(allow_output_mutation=True, suppress_st_warning=True, show_spinner=False)
