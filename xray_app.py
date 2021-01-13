@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import modules.appsession as session
 from modules.img_classification import import_and_predict
 from modules.features_map import select_and_features_map
+from modules.grad_cam import get_img_array, make_gradcam_heatmap, display_grad_img
 from tensorflow.keras.preprocessing.image import ImageDataGenerator, img_to_array, load_img
 
 def main():
@@ -191,7 +192,7 @@ def page_cnn(state):
     st.write(
         'To build our efficient <strong>Convolutional Neural Network</strong>, we used the <strong>transfer learning</strong> technique that allows us to benefit from a relatively small computation time, and thus to save training time, and weights of a <em>pre-trained</em> model to increase the algorithm performance. Finally, this technique does not need a huge amount of X-rays data to get really efficient prediction of COVID-19.'
         '\n\n'
-        'Therefore, we imported a <strong>VGG16</strong> model pre-trained on ImageNet and we built a classifier made of <strong>dense</strong> and <strong>dropout</strong> layers.', unsafe_allow_html = True)
+        'Therefore, we imported a <strong>VGG16</strong> model pre-trained on ImageNet, froze the convolutional layers, and we built a classifier made of <strong>dense</strong> and <strong>dropout</strong> layers.', unsafe_allow_html = True)
     st.header('Architecture')
     st.write('\n\n')
     img = Image.open('static/VGG16_architecture.jpg')
@@ -199,78 +200,6 @@ def page_cnn(state):
     st.write(
         '\n\n'
         'Interestingly, the simple addition of dense layers with decreasing units after the convolution part was clearly increasing classification accuracy.')
-    
-    st.header('Visualize the feature maps during convolution')
-    st.write('\n\n')
-    st.write(
-        'Convolutional Neural Network models have impressive <strong>classification performance</strong>. Yet it is not clear <em>why</em> they perform so well and thus <em>how</em> they might be improved.'
-        '\n\n'
-        'Those models use filters performing the <em>convolution operation</em> and result in <strong>activation maps</strong> or <strong>features maps</strong>. These <strong>activation maps</strong> capture the result of applying filters to an input such as the input image or another feature map. Both filters and feature maps can be visualized.'
-        '\n\n'
-        'For instance, we can try to understand small filters, such as <em>contour or line detectors</em>. Using feature maps that result from the filtering, we may even get insight into the <strong>internal representation</strong> that the model has of a particular input.'
-        '\n\n'
-        'The idea of visualizing a feature map for a specific input image would be to understand what features of the input are detected in the feature maps.', unsafe_allow_html = True)    
-    st.write("")
-    if st.checkbox("Generate a feature map"):
-        category=st.selectbox("Choose the category", ("<select>","COVID","NORMAL","VIRAL PNEUMONIA"))
-        if category !="<select>":
-            st.write("You selected", category)
-            waiting_text = st.text("Please wait...")
-            if category=="COVID":
-                path_covid="dataset/COVID"
-                files_covid=os.listdir(path_covid)
-                img_covid=random.choice(files_covid)
-                image = path_covid+'/'+img_covid
-                n_layer = st.select_slider("Convolution layer", [1,2,4,5,7,8,9,11,12,13,15,16,17])
-                select_and_features_map(image, n_layer = n_layer)
-                waiting_text.text("")
-                st.info(
-                    'You are visualizing 64 feature maps as subplots. Those maps were generated from the selected convolutional having a COVID-19 X-ray as input.'
-                    '\n\n'
-                    'The feature maps ***close to the input*** detect **small** or **fine-grained details**, whereas feature maps ***close to the output*** of the model capture more **general features**.'
-                    '\n\n'
-                    'We can see that the result of applying filters in the first convolutional layer is a lot of versions of X-ray with different features highlighted. For example, some highlight lines, other focus on the background or the foreground.'
-                    '\n\n'
-                    'Bright areas are the ***activated*** regions, meaning the filter detected the pattern it was looking for.'
-                    '\n\n'
-                    'You can move the slider to see the feature maps of the other convolution layers (number 17 corresponds to the last one).')
-            elif category=="NORMAL":
-                path_normal="dataset/NORMAL"
-                files_normal=os.listdir(path_normal)
-                img_normal=random.choice(files_normal)
-                image = path_normal+'/'+img_normal
-                n_layer = st.select_slider("Convolution layer", [1,2,4,5,7,8,9,11,12,13,15,16,17])
-                select_and_features_map(image, n_layer = n_layer)
-                waiting_text.text("")
-                st.info(
-                    "You are visualizing 64 feature maps as subplots. Those maps were generated from the selected convolutional layer having a healthy patient's X-ray as input."
-                    '\n\n'
-                    'The feature maps ***close to the input*** detect **small** or **fine-grained details**, whereas feature maps ***close to the output*** of the model capture more **general features**.'
-                    '\n\n'
-                    'We can see that the result of applying filters in the first convolutional layer is a lot of versions of X-ray with different features highlighted. For example, some highlight lines, other focus on the background or the foreground.'
-                    '\n\n'
-                    'Bright areas are the ***activated*** regions, meaning the filter detected the pattern it was looking for.'
-                    '\n\n'
-                    'You can move the slider to see the feature maps of the other convolution layers (number 17 corresponds to the last one).')
-            else:
-                path_viral="dataset/VIRAL"
-                files_viral=os.listdir(path_viral)
-                img_viral=random.choice(files_viral)
-                image = path_viral+'/'+img_viral
-                n_layer = st.select_slider("Convolution layer", [1,2,4,5,7,8,9,11,12,13,15,16,17])
-                select_and_features_map(image, n_layer = n_layer)
-                waiting_text.text("")
-                st.info(
-                    'You are visualizing 64 feature maps as subplots. Those maps were generated from the selected convolutional layer having a viral pneumonia X-ray as input.'
-                    '\n\n'
-                    'The feature maps ***close to the input*** detect **small** or **fine-grained details**, whereas feature maps ***close to the output*** of the model capture more **general features**.'
-                    '\n\n'
-                    'We can see that the result of applying filters in the first convolutional layer is a lot of versions of X-ray with different features highlighted. For example, some highlight lines, other focus on the background or the foreground.'
-                    '\n\n'
-                    'Bright areas are the ***activated*** regions, meaning the filter detected the pattern it was looking for.'
-                    '\n\n'
-                    'You can move the slider to see the feature maps of the other convolution layers (number 17 corresponds to the last one).')
-
     st.header('Training hyperparameters')
     st.write('\n\n')
     st.write(
@@ -280,11 +209,82 @@ def page_cnn(state):
         '\n\n'
         'The model was fit using the adjusted class weights on <em>20 epochs</em>. '
         '\n\n'
-        'We then proceeded to fine-tuning the model by removing the last 10 layers of the pre-trained VGG16 model with an initial learning rate of <em>0.0001</em>, adding a “<strong>ReduceLROnPlateau</strong>” callback which aims for changing the learning rate with respect to a chosen metric on the test set.'
+        'We then proceeded to fine-tuning the model by unfreezing the last 10 layers of the pre-trained VGG16 model with an initial learning rate of <em>0.0001</em>, adding a “<strong>ReduceLROnPlateau</strong>” callback which aims for changing the learning rate with respect to a chosen metric on the test set.'
         '\n\n'
         'Here we chose to monitor the <strong>validation loss function</strong>, that is to say that the learning rate would be reduced when the quantity has stopped decreasing.'
         '\n\n'
         'The fine-tuned model was fit using the adjusted class weights on <em>30 epochs</em> and the aforementioned callback.', unsafe_allow_html = True)
+    
+    with st.beta_expander('Visualize the feature maps during convolution'):
+        st.write('\n\n')
+        st.write(
+            'Convolutional Neural Network models have impressive <strong>classification performance</strong>. Yet it is not clear <em>why</em> they perform so well and thus <em>how</em> they might be improved.'
+            '\n\n'
+            'Those models use filters performing the <em>convolution operation</em> and result in <strong>activation maps</strong> or <strong>features maps</strong>. These <strong>activation maps</strong> capture the result of applying filters to an input such as the input image or another feature map. Both filters and feature maps can be visualized.'
+            '\n\n'
+            'For instance, we can try to understand small filters, such as <em>contour or line detectors</em>. Using feature maps that result from the filtering, we may even get insight into the <strong>internal representation</strong> that the model has of a particular input.'
+            '\n\n'
+            'The idea of visualizing a feature map for a specific input image would be to understand what features of the input are detected in the feature maps.', unsafe_allow_html = True)
+        st.write("")
+        if st.checkbox("Generate a feature map"):
+            category=st.selectbox("Choose the category", ("<select>","COVID","NORMAL","VIRAL PNEUMONIA"))
+            if category !="<select>":
+                st.write("You selected", category)
+                waiting_text = st.text("Please wait...")
+                if category=="COVID":
+                    path_covid="dataset/COVID"
+                    files_covid=os.listdir(path_covid)
+                    img_covid=random.choice(files_covid)
+                    image = path_covid+'/'+img_covid
+                    n_layer = st.select_slider("Convolution layer", [1,2,4,5,7,8,9,11,12,13,15,16,17])
+                    select_and_features_map(image, n_layer = n_layer)
+                    waiting_text.text("")
+                    st.info(
+                        'You are visualizing 64 feature maps as subplots. Those maps were generated from the selected convolutional having a COVID-19 X-ray as input.'
+                        '\n\n'
+                        'The feature maps ***close to the input*** detect **small** or **fine-grained details**, whereas feature maps ***close to the output*** of the model capture more **general features**.'
+                        '\n\n'
+                        'We can see that the result of applying filters in the first convolutional layer is a lot of versions of X-ray with different features highlighted. For example, some highlight lines, other focus on the background or the foreground.'
+                        '\n\n'
+                        'Bright areas are the ***activated*** regions, meaning the filter detected the pattern it was looking for.'
+                        '\n\n'
+                        'You can move the slider to see the feature maps of the other convolution layers (number 17 corresponds to the last one).')
+                elif category=="NORMAL":
+                    path_normal="dataset/NORMAL"
+                    files_normal=os.listdir(path_normal)
+                    img_normal=random.choice(files_normal)
+                    image = path_normal+'/'+img_normal
+                    n_layer = st.select_slider("Convolution layer", [1,2,4,5,7,8,9,11,12,13,15,16,17])
+                    select_and_features_map(image, n_layer = n_layer)
+                    waiting_text.text("")
+                    st.info(
+                        "You are visualizing 64 feature maps as subplots. Those maps were generated from the selected convolutional layer having a healthy patient's X-ray as input."
+                        '\n\n'
+                        'The feature maps ***close to the input*** detect **small** or **fine-grained details**, whereas feature maps ***close to the output*** of the model capture more **general features**.'
+                        '\n\n'
+                        'We can see that the result of applying filters in the first convolutional layer is a lot of versions of X-ray with different features highlighted. For example, some highlight lines, other focus on the background or the foreground.'
+                        '\n\n'
+                        'Bright areas are the ***activated*** regions, meaning the filter detected the pattern it was looking for.'
+                        '\n\n'
+                        'You can move the slider to see the feature maps of the other convolution layers (number 17 corresponds to the last one).')
+                else:
+                    path_viral="dataset/VIRAL"
+                    files_viral=os.listdir(path_viral)
+                    img_viral=random.choice(files_viral)
+                    image = path_viral+'/'+img_viral
+                    n_layer = st.select_slider("Convolution layer", [1,2,4,5,7,8,9,11,12,13,15,16,17])
+                    select_and_features_map(image, n_layer = n_layer)
+                    waiting_text.text("")
+                    st.info(
+                        'You are visualizing 64 feature maps as subplots. Those maps were generated from the selected convolutional layer having a viral pneumonia X-ray as input.'
+                        '\n\n'
+                        'The feature maps ***close to the input*** detect **small** or **fine-grained details**, whereas feature maps ***close to the output*** of the model capture more **general features**.'
+                        '\n\n'
+                        'We can see that the result of applying filters in the first convolutional layer is a lot of versions of X-ray with different features highlighted. For example, some highlight lines, other focus on the background or the foreground.'
+                        '\n\n'
+                        'Bright areas are the ***activated*** regions, meaning the filter detected the pattern it was looking for.'
+                        '\n\n'
+                        'You can move the slider to see the feature maps of the other convolution layers (number 17 corresponds to the last one).')
         
 # ###############################
 # Page Results & Interpretation #
@@ -293,7 +293,7 @@ def page_cnn(state):
 def page_results(state):
     st.title('Results')
     st.write('\n\n')
-    st.warning('Given that two different datasets were used since the last update on *Kaggle*, two *identical* models were trained on the images. Here we will show you the results of both models and compare them as far as metrics are concerned.')
+    st.warning('Given that two different datasets were used since the last update on *Kaggle*, two *identical* models were trained on the images. Here we will show you the results of both models and compare them as far as metrics are concerned. Yet, with our fine-tuned model, we could achieve a 100% accuracy to detect COVID from Chest X-rays of the testing set.')
     st.write('\n\n')
     with st.beta_expander('Display results for the first model'):
         st.subheader('Model trained on the initial dataset (*imbalanced dataset*)')
@@ -410,7 +410,7 @@ def page_prediction(state):
     st.title("Chest Radiography Image Classification")
     st.write('\n\n')
     st.subheader("Upload a chest X-Ray for image classification as COVID-19, Normal or Viral Pneumonia")
-    uploaded_file = st.file_uploader("Choose a chest X-Ray ...", type = ["jpg", "png"])
+    uploaded_file = st.file_uploader("Choose a chest X-Ray ...", type = ["jpg", "png"], key="1")
     if uploaded_file is not None:
         image = Image.open(uploaded_file)
         st.image(image, caption='Uploaded X-Ray.', use_column_width=True)
@@ -424,6 +424,26 @@ def page_prediction(state):
             st.success("The model predicts the patient is **healthy**.")
         else:
             st.write("The model predicts the patient has **Viral Pneumonia**.")
+        st.info('It can be very interesting to **visualize** directly what the **Convolutional Neural Network** values in the images for predicting the condition.'
+            '\n\n'
+            "For non-technical people in the medical field, especially in *radiology*, it is important to know how the model as discriminate healthy patient X-Rays from that of a COVID-19 case or Viral Pneumonia case."
+            '\n\n'
+            "Hence, the **GRADient-weighted Class Activation Mapping** (*Grad-CAM*) is a technic aiming at visualizing the features used for classification by generating a **heatmap** superimposed on the image."
+            '\n\n'
+            'Click below to produce a *Grad-CAM* visualization')
+        if st.checkbox("Produce Grad-CAM"):
+            if uploaded_file is not None:
+                image2 = Image.open(uploaded_file)
+                img_array = get_img_array(image2)
+                heatmap = make_gradcam_heatmap(img_array)
+                gradcam_image = display_grad_img(image2, heatmap)
+                st.image(gradcam_image, use_column_width=True)
+                st.success("By highlighting the most important features, we could potentially show the characteristics of contracting COVID-19 and those features could be used for further model exploration such as the evolution of the disease through time, or a comparison of pulmonaries symptoms between several diseases.")
+                st.warning('We see from the localization map that characteristics of COVID-19 is often at the **endings of the lungs**, that is presumably the inflammation of the alveoli (i.e. the small air sacs containing oxygen that crosses into bloodstreams are filled up by fluid). Also, recent studies highlighted that, contrarily to other pneumonia-caused viruses, COVID-19 is more frequently affecting both lungs, but also that it is a multi-visceral disease that can affect also liver, kidneys, heart, nerves.'
+                '\n\n'
+                "It could be helpful to look at a more 'global' picture of human body, which might therefore highlight other body parts being stricken by the virus")
+                
+
             
 # #################
 # Page Conclusion #
@@ -442,23 +462,6 @@ def page_conclusion(state):
         "Nonetheless, we're proud of displaying our work in a WebApp that hopefully will teach and entertain at the same time."
         '\n\n'
         'To summarize, with our model, we could demonstrate the efficiency of <strong>deep transfer learning</strong> for radiography analyses and diagnosis, with an appropriate architecture and fine-tuning parameters.', unsafe_allow_html = True)
-    with st.beta_expander('Bonus'):
-        st.write(
-            'It can be very useful and interesting to <strong>visualize</strong> what the <strong>Convolutional Neural Network</strong> values when it does a prediction.'
-            '\n\n'
-            "For non-technical people in the medical field, especially in <em>radiology</em>, it's important to know the difference and discriminate <strong>healthy patient</strong> X-Rays from that of a <strong>COVID-19</strong> case or <strong>Viral Pneumonia</strong> case. Fortunately, it is possible to visualize what the CNN deems as <strong>significant features</strong>."
-            '\n\n'
-            'Hence, introducing the <strong>Grad-CAM class activation maps</strong> (<em>GRADient-weighted Class Activation Mapping</em>). Grad-CAM class activation maps generate <strong>heatmaps</strong> at the <em>convolutional</em> level rather than the <em>dense neural layer</em> level, taking into account more spatial details.'
-            '\n\n'
-            'Below, a localization map is produced highlighting the important regions in the image for predicting for COVID-19.', unsafe_allow_html = True)
-        covid_gradcam = Image.open('static/gradcam_covid.jpg')
-        st.image(covid_gradcam, use_column_width = True)
-        st.info(
-            'We see from the localization map that both lungs express the characteristics of COVID-19, particularly at the **end of the rib cage**, that is presumably the inflammation of the alveoli (i.e. the small air sacs containing oxygen that crosses into bloodstreams are filled up by fluid). Indeed, recent studies highlighted that, contrarily to other pneumonia-caused viruses, COVID-19 is affecting both lungs.')
-        st.write(
-            "For some unknown reasons, this interpretation technique didn't work properly for all images. Unfortunately, we didn't have enough time to focus more on figuring out how we could adjust the code behind Grad-CAM and display a set of images chosen by the user.", unsafe_allow_html = True)
-        st.info(
-            'There are improvements that can still be made to this project. One remaining problem is to understand how the model learned to classify the images for each category (model interpretability). By highlighting the most important features, we could potentially show the characteristics of contracting COVID-19 and those features could be used for further model exploration such as the evolution of the disease through time, or a comparison of pulmonaries symptoms between population categories (age, gender, ...).')
 
 # #####################################
 
