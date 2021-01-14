@@ -13,8 +13,9 @@ import numpy as np
 import streamlit as st
 import urllib.request
 
+
 url = 'https://github.com/valerie-ducret/pyx_COV19/releases/download/1/fine_tuned_vgg16_second_model.h5'
-modelfile = "model.h5" 
+modelfile = "model2.h5" 
 urllib.request.urlretrieve(url, modelfile)
 
 def recall_m(y_true, y_pred):
