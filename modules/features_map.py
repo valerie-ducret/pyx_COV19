@@ -34,7 +34,7 @@ def get_model():
     return model 
 
 @st.cache(allow_output_mutation=True, suppress_st_warning=True, show_spinner=False)
-def select_and_features_map(image, n_layer, model):
+def select_and_features_map(image, n_layer):
     # load the model
     model = get_model()
     # redefine model to output right after the first hidden layer
