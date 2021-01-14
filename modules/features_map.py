@@ -33,10 +33,10 @@ def f1_m(y_true, y_pred):
 #    model = keras.models.load_model('../model/fine_tuned_vgg16_second_model.h5', custom_objects = {'f1_m' : f1_m})
 #    return model 
 
-model = keras.models.load_model('model/fine_tuned_vgg16_second_model.h5', custom_objects = {'f1_m' : f1_m})
+model = keras.models.load_model('../model/fine_tuned_vgg16_second_model.h5', custom_objects = {'f1_m' : f1_m})
 
 @st.cache(allow_output_mutation=True, suppress_st_warning=True, show_spinner=False)
-def select_and_features_map(image, n_layer):
+def select_and_features_map(image, n_layer, model):
     # load the model
     #model = model
     # redefine model to output right after the first hidden layer
