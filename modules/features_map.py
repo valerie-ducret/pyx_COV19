@@ -10,6 +10,11 @@ from keras.applications.vgg16 import VGG16, preprocess_input
 from tensorflow.keras.models import load_model
 import numpy as np
 import streamlit as st
+import urllib.request
+
+url = 'https://github.com/valerie-ducret/pyx_COV19/releases/download/1/fine_tuned_vgg16_second_model.h5'
+filename = url.split('/')[-1]
+urllib.request.urlretrieve(url, filename)
 
 def recall_m(y_true, y_pred):
     true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
