@@ -2,8 +2,8 @@
 # A projet to detect COVID-19 from X-rays using Convolutional Neural Networks.
 ** A journey with artificial intelligence in service of medical diagnosis **
 
-This project was performed during a Bootcamp Data Science training with DataScientest. It is above all a didactic project that finally occurs to be really performant, by predicting 100% of Covid X-rays from the testing set. 
-By deploying a web application using Streamlit, we hope that other would be able to learn computer vision for their own project or to understand how a neural network works.
+This project was performed during a Bootcamp Data Science training with DataScientest, by Kevin Pame and Valerie Ducret. It is above all a didactic project that finally occurs to be really performant, by predicting 100% of Covid X-rays from the testing set. 
+By deploying a web application using Streamlit, we hope that others would be able to learn what is computer vision, to understand how a neural network works, or use some of this work for their own data science project.
 
 To see the app >> 
 https://share.streamlit.io/valerie-ducret/pyx_cov19/main/xray_app.py
