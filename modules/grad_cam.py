@@ -10,6 +10,11 @@ from tensorflow.keras.preprocessing.image import load_img, img_to_array, array_t
 from tensorflow.keras.models import load_model
 from PIL import Image, ImageOps
 import matplotlib.cm as cm
+import urllib.request
+
+url = 'https://github.com/valerie-ducret/pyx_COV19/releases/download/1/fine_tuned_vgg16_second_model.h5'
+modelfile = "model.h5" 
+urllib.request.urlretrieve(url, modelfile)
 
 def recall_m(y_true, y_pred):
     true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
@@ -30,7 +35,7 @@ def f1_m(y_true, y_pred):
 
 @st.cache(allow_output_mutation=True, show_spinner=False)
 def get_model():
-    model = keras.models.load_model('model/fine_tuned_vgg16_second_model.h5', custom_objects = {'f1_m' : f1_m})
+    model = keras.models.load_model(modelfile, custom_objects = {'f1_m' : f1_m})
     return model
 
 def get_img_array(image, size = (224, 224)):
