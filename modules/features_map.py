@@ -28,10 +28,12 @@ def f1_m(y_true, y_pred):
     recall = recall_m(y_true, y_pred)
     return 2*((precision*recall)/(precision+recall+K.epsilon()))
 
-@st.cache(allow_output_mutation=True, show_spinner=False)
-def get_model():
-    model = keras.models.load_model('../model/fine_tuned_vgg16_second_model.h5', custom_objects = {'f1_m' : f1_m})
-    return model 
+#@st.cache(allow_output_mutation=True, show_spinner=False)
+#def get_model():
+#    model = keras.models.load_model('../model/fine_tuned_vgg16_second_model.h5', custom_objects = {'f1_m' : f1_m})
+#    return model 
+
+model = keras.models.load_model('model/fine_tuned_vgg16_second_model.h5', custom_objects = {'f1_m' : f1_m})
 
 @st.cache(allow_output_mutation=True, suppress_st_warning=True, show_spinner=False)
 def select_and_features_map(image, n_layer):
