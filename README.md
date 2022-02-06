@@ -7,6 +7,7 @@ By deploying a web application using Streamlit, we hope that others would be abl
 
 To see the app >> 
 https://share.streamlit.io/valerie-ducret/pyx_cov19/main/xray_app.py
+if not working, try here >> https://share.streamlit.io/harison-p/dl_pyx_cov19/main/xray_app.py
 
 # Explanation of pyx_COV19 repository
 
