@@ -5,9 +5,7 @@
 This project was performed during a Bootcamp Data Science training with DataScientest, by Kevin Pame and Valerie Ducret. It is above all a didactic project. 
 By deploying a web application using Streamlit, we hope that others would be able to learn what is computer vision, to understand how a neural network works, or use some of this work for their own data science project.
 
-To see the app >> 
-https://share.streamlit.io/valerie-ducret/pyx_cov19/main/xray_app.py
-if not working, try here >> https://share.streamlit.io/harison-p/dl_pyx_cov19/main/xray_app.py
+To see the app >> https://share.streamlit.io/valerie-ducret/pyx_cov19/main/xray_app.py
 
 # Explanation of pyx_COV19 repository
 
