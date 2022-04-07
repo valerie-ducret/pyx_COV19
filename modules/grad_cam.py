@@ -20,7 +20,7 @@ from keras.metrics import Recall, Precision, AUC
 from keras.applications.vgg16 import VGG16
 from keras.models import load_model
 
-preprocess_input = keras.applications.xception.preprocess_input
+preprocess_input = tf.keras.applications.xception.preprocess_input
 
 def gradcam(img_path, model):
     size = (224,224)
