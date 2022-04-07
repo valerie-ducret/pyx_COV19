@@ -11,6 +11,10 @@ import keras
 from PIL import Image, ImageOps
 import numpy as np
 import streamlit as st
+from pathlib import Path
+import h5py
+from google_drive_downloader import GoogleDriveDownloader as gdd
+
 
 def recall_m(y_true, y_pred):
     true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
@@ -29,9 +33,20 @@ def f1_m(y_true, y_pred):
     recall = recall_m(y_true, y_pred)
     return 2*((precision*recall)/(precision+recall+K.epsilon()))
     
-@st.cache(allow_output_mutation=True, show_spinner=False)
+@st.cache(allow_output_mutation=True, show_spinner=True)
 def get_model():
-    model = keras.models.load_model('model/fine_tuned_vgg16_second_model.h5', custom_objects = {'f1_m' : f1_m})
+        
+    file_id = '13ytKE6ZruB9W-br_31HhxjKGkjGCtrjo'
+
+    save_dest = Path('model')
+    save_dest.mkdir(exist_ok=True)
+
+    f_checkpoint = Path("model/fine_tuned_vgg16_second_model.h5")
+    
+    with st.spinner("Downloading model... this may take a while! \n Please be patient!"):
+        gdd.download_file_from_google_drive(file_id, f_checkpoint)
+
+    model = keras.models.load_model(f_checkpoint, custom_objects = {'f1_m' : f1_m})
     print('Model Loaded')
     return model 
 

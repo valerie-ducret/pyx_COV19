@@ -1,13 +1,13 @@
 # This was taken from the tutorial created by Jason Brownlee
 
 import matplotlib.pyplot as plt
-from tensorflow.keras.preprocessing.image import load_img, img_to_array
+from keras.preprocessing.image import load_img, img_to_array
 from keras import layers
 import keras
-from tensorflow.keras.models import Model
-from tensorflow.keras.metrics import Recall, Precision, AUC
+from keras.models import Model
+from keras.metrics import Recall, Precision, AUC
 from keras.applications.vgg16 import VGG16, preprocess_input
-from tensorflow.keras.models import load_model
+from keras.models import load_model
 import numpy as np
 import streamlit as st
 

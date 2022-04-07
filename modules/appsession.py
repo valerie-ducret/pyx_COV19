@@ -1,3 +1,4 @@
+import streamlit as st
 from streamlit.hashing import _CodeHasher
 
 try:
