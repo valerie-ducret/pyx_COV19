@@ -1,48 +1,69 @@
-# needed packages
-
-#from tensorflow import keras
-
-from IPython.display import Image, display
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import matplotlib.cm as cm
 import numpy as np
-import pandas as pd 
-
-from IPython.display import Image, display
-
 import tensorflow as tf
 import keras
+import streamlit as st
+from IPython.display import Image, display
+import matplotlib.pyplot as plt
 from keras.preprocessing.image import load_img, img_to_array, array_to_img
-from keras import layers
-from keras.models import Model, Sequential
-from keras.metrics import Recall, Precision, AUC
-from keras.applications.vgg16 import VGG16
 from keras.models import load_model
+from PIL import Image, ImageOps
+import matplotlib.cm as cm
+from pathlib import Path
+import h5py
+from google_drive_downloader import GoogleDriveDownloader as gdd
 
-preprocess_input = tf.keras.applications.xception.preprocess_input
+def recall_m(y_true, y_pred):
+    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+    possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
+    recall = true_positives / (possible_positives + K.epsilon())
+    return recall
 
-def gradcam(img_path, model):
-    size = (224,224)
-    img = load_img(img_path, target_size=size)
-    array = img_to_array(img)
-    # We add a dimension to transform our array into a "batch"
-    # of size (1, 224, 224, 3)
-    array = np.expand_dims(array, axis = 0)
-    array.shape
-    img_array = preprocess_input(array)
+def precision_m(y_true, y_pred):
+    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+    predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
+    precision = true_positives / (predicted_positives + K.epsilon())
+    return precision
+
+def f1_m(y_true, y_pred):
+    precision = precision_m(y_true, y_pred)
+    recall = recall_m(y_true, y_pred)
+    return 2*((precision*recall)/(precision+recall+K.epsilon()))
+
+@st.cache(allow_output_mutation=True, show_spinner=False)
+def get_model():
+        
+    file_id = '13ytKE6ZruB9W-br_31HhxjKGkjGCtrjo'
+
+    save_dest = Path('model')
+    save_dest.mkdir(exist_ok=True)
+
+    f_checkpoint = Path("model/fine_tuned_vgg16_second_model.h5")
     
-    # This is our convolutional and classifier layers. To see yours, just print model.summary(), look at the last "_conv", 
-    # and the following ones are the classifier layers
-    # to have a function to retrieve the classifier or convolutional layers (adaptable with "if 'conv' not in layer.name")
-    #classifier_layer_names = []
-    #for i in range(18,28):
-    #    layer = model.layers[i]
-    #    # check for non-convolutional layer
-    #    if 'conv' in layer.name:
-    #        continue
-    #    classifier_layer_names.append(layer.name)
-    last_conv_layer_name = "block5_conv3"
+    with st.spinner("Downloading model... this may take a while! \n Please be patient!"):
+        gdd.download_file_from_google_drive(file_id, f_checkpoint)
+
+    model = keras.models.load_model(f_checkpoint, custom_objects = {'f1_m' : f1_m})
+    print('Model Loaded')
+    return model 
+
+def get_img_array(image, size = (224, 224)):
+    # resize image
+    image = ImageOps.fit(image, size, Image.ANTIALIAS)
+    # `array` is a float32 Numpy array of shape (224, 224, 3)
+    image_array = np.asarray(image)
+    if len(image_array.shape) == 3:
+        normalized_image_array = (image_array.astype(np.float32)/255.) # normalize the numpy array
+        normalized_image_array = normalized_image_array[np.newaxis, ...]
+    else:
+        image_array =  np.stack((image_array, )*3, axis = -1)
+        normalized_image_array = (image_array.astype(np.float32)/255.) # normalize the numpy array
+        normalized_image_array = normalized_image_array[np.newaxis, ...]
+    return normalized_image_array
+
+@st.cache(allow_output_mutation=True, suppress_st_warning=True, show_spinner=False)
+def make_gradcam_heatmap(img_array):
+    model = get_model()
+    last_conv_layer_name = 'block5_conv3'
     classifier_layer_names = [
                               'block5_pool',
                               'global_average_pooling2d',
@@ -55,7 +76,6 @@ def gradcam(img_path, model):
                               'dropout_2',
                               'visualized_layer',
     ]
-      
     # First, we create a model that maps the input image to the activations
     # of the last conv layer
     last_conv_layer = model.get_layer(last_conv_layer_name)
@@ -101,9 +121,10 @@ def gradcam(img_path, model):
 
     # For visualization purpose, we will also normalize the heatmap between 0 & 1
     heatmap = np.maximum(heatmap, 0) / np.max(heatmap)
-    
-    size_2 = (512,512)
-    img = load_img(img_path, target_size = size_2)
+    return heatmap
+
+def display_grad_img(image, heatmap):
+    img = image
     img = img_to_array(img)
 
     # We rescale heatmap to a range 0-255
@@ -126,5 +147,4 @@ def gradcam(img_path, model):
     superimposed_img = array_to_img(superimposed_img)
 
     # Display Grad CAM
-    display(superimposed_img)
-
+    return superimposed_img
