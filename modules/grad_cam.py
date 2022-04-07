@@ -2,15 +2,12 @@ import numpy as np
 import tensorflow as tf
 import keras
 import streamlit as st
-from IPython.display import Image, display
-import matplotlib.pyplot as plt
-from keras.preprocessing.image import load_img, img_to_array, array_to_img
+from keras.preprocessing.image import img_to_array, array_to_img
 from keras.models import load_model
 from PIL import Image, ImageOps
 import matplotlib.cm as cm
-from pathlib import Path
-import h5py
-from google_drive_downloader import GoogleDriveDownloader as gdd
+import os.path
+import gdown
 
 def recall_m(y_true, y_pred):
     true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
@@ -31,18 +28,13 @@ def f1_m(y_true, y_pred):
 
 @st.cache(allow_output_mutation=True, show_spinner=False)
 def get_model():
-        
-    file_id = '13ytKE6ZruB9W-br_31HhxjKGkjGCtrjo'
-
-    save_dest = Path('model')
-    save_dest.mkdir(exist_ok=True)
-
-    f_checkpoint = Path("model/fine_tuned_vgg16_second_model.h5")
     
-    with st.spinner("Downloading model... this may take a while! \n Please be patient!"):
-        gdd.download_file_from_google_drive(file_id, f_checkpoint)
+    if not os.path.exists("fine_tuned_vgg16_second_model.h5"):
+        url = "https://drive.google.com/file/d/13ytKE6ZruB9W-br_31HhxjKGkjGCtrjo/view?usp=sharing"
+        output = "fine_tuned_vgg16_second_model.h5"
+        gdown.download(url=url, output=output, quiet=False, fuzzy=True)
 
-    model = keras.models.load_model(f_checkpoint, custom_objects = {'f1_m' : f1_m})
+    model = keras.models.load_model("fine_tuned_vgg16_second_model.h5", custom_objects = {'f1_m' : f1_m})
     print('Model Loaded')
     return model 
 

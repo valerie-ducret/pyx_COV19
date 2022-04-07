@@ -1,21 +1,13 @@
-# This was taken from the tutorial created by Jason Brownlee
-
 import matplotlib.pyplot as plt
 from keras.preprocessing.image import load_img, img_to_array
 from keras import layers
 import keras
-from keras.models import Model
-from keras.metrics import Recall, Precision, AUC
-from keras.applications.vgg16 import VGG16, preprocess_input
-from keras.models import load_model
+from keras.models import Model, load_model
+from keras.applications.vgg16 import preprocess_input
 import numpy as np
 import streamlit as st
-import urllib.request
-import os
-
-url = 'https://github.com/valerie-ducret/pyx_COV19/releases/download/1/fine_tuned_vgg16_second_model.h5'
-modelfile = "model.h5" 
-urllib.request.urlretrieve(url, modelfile)
+import os.path
+import gdown
 
 def recall_m(y_true, y_pred):
     true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
@@ -36,7 +28,14 @@ def f1_m(y_true, y_pred):
 
 @st.cache(allow_output_mutation=True, show_spinner=False)
 def get_model():
-    model = keras.models.load_model(modelfile, custom_objects = {'f1_m' : f1_m})
+    
+    if not os.path.exists("fine_tuned_vgg16_second_model.h5"):
+        url = "https://drive.google.com/file/d/13ytKE6ZruB9W-br_31HhxjKGkjGCtrjo/view?usp=sharing"
+        output = "fine_tuned_vgg16_second_model.h5"
+        gdown.download(url=url, output=output, quiet=False, fuzzy=True)
+
+    model = keras.models.load_model("fine_tuned_vgg16_second_model.h5", custom_objects = {'f1_m' : f1_m})
+    print('Model Loaded')
     return model 
 
 @st.cache(allow_output_mutation=True, suppress_st_warning=True, show_spinner=False)

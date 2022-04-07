@@ -9,7 +9,9 @@ import modules.appsession as session
 from modules.img_classification import import_and_predict
 from modules.features_map import select_and_features_map
 from keras.preprocessing.image import ImageDataGenerator, img_to_array, load_img
+#from keras.preprocessing.image import ImageDataGenerator
 from modules.grad_cam import get_img_array, make_gradcam_heatmap, display_grad_img
+
 
 def main():
     state = session._get_state()
@@ -230,7 +232,7 @@ def page_cnn(state):
             category=st.selectbox("Choose the category", ("<select>","COVID","NORMAL","VIRAL PNEUMONIA"))
             if category !="<select>":
                 st.write("You selected", category)
-                waiting_text = st.text("Please wait...")
+                waiting_text = st.text("Please wait, the app is downloading and charging the model \nIt can take up to two minutes...")
                 if category=="COVID":
                     path_covid="dataset/COVID"
                     files_covid=os.listdir(path_covid)
@@ -411,11 +413,13 @@ def page_prediction(state):
     st.write('\n\n')
     st.subheader("Upload a chest X-Ray for image classification as COVID-19, Normal or Viral Pneumonia")
     uploaded_file = st.file_uploader("Choose a chest X-Ray ...", type = ["jpg", "png"], key="1")
+    if uploaded_file is None:
+        st.write("No image uploaded")
     if uploaded_file is not None:
         image = Image.open(uploaded_file)
         st.image(image, caption='Uploaded X-Ray.', use_column_width=True)
         st.write("")
-        image_loaded = st.text("Wait for classification...")
+        image_loaded = st.text("Wait for classification, the app is downloading and charging the model \nIt can take up to two minutes......")
         label = import_and_predict(image)
         image_loaded.text("Classification done!")
         if label == 0:
@@ -442,8 +446,6 @@ def page_prediction(state):
                 st.warning('We see from the localization map that characteristics of COVID-19 is often at the **endings of the lungs**, that is presumably the inflammation of the alveoli (i.e. the small air sacs containing oxygen that crosses into bloodstreams are filled up by fluid). Also, recent studies highlighted that, contrarily to other pneumonia-caused viruses, COVID-19 is more frequently affecting both lungs, but also that it is a multi-visceral disease that can affect also liver, kidneys, heart, nerves.'
                 '\n\n'
                 "It could be helpful to look at a more 'global' picture of human body, which might therefore highlight other body parts being stricken by the virus")
-                
-
             
 # #################
 # Page Conclusion #

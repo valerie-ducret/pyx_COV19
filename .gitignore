@@ -1,9 +1,7 @@
 .DS_Store
 
-model.h5
-model2.h5
 modules/img_classification_gitlfs.py
-model/
+fine_tuned_vgg16_second_model.h5
 requirements_full.txt
 workspace.code-workspace
 
