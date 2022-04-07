@@ -2,6 +2,11 @@
 
 model.h5
 model2.h5
+modules/img_classification_gitlfs.py
+model/
+requirements_full.txt
+workspace.code-workspace
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
