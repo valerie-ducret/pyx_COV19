@@ -1,5 +1,7 @@
 .DS_Store
 
+model.h5
+model2.h5
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

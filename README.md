@@ -3,7 +3,7 @@
 ** A journey with artificial intelligence in service of medical diagnosis **
 
 \includegraphics[]{../Desktop/xray_app/lungs_AI.jpg}
-© iStock/Jackie Niam
+ï¿½ iStock/Jackie Niam
 
 ## Project's aims
 
@@ -66,17 +66,17 @@ Therefore, we could demonstrate the very efficient method of deep transfer learn
 
 ## References 
 
-Ahuja S., Panigrahi B.K., Dey N. et al. (2020). Deep transfer learning-based automated detection of COVID-19 from lung CT scan slices. Appl Intell. https://doi.org/10.1007/s10489-020-01826-w.
+Ahuja S., Panigrahi B.K., Dey N.ï¿½et al.ï¿½(2020). Deep transfer learning-based automated detection of COVID-19 from lung CT scan slices.ï¿½Appl Intell. https://doi.org/10.1007/s10489-020-01826-w.
 
-Bai H., Hsieh B., Xiong Z. et al. (2020). Performance of radiologists in differentiating COVID-19 from viral pneumonia on chest CT. Radiology, doi: 10.1148/radiol.2020200823.
+Bai H., Hsieh B., Xiong Z. et al. (2020). Performance of radiologists in differentiating COVID-19 from viral pneumonia on chest CT. Radiology, doi:ï¿½10.1148/radiol.2020200823.
 
 Dong E., Du H., Gardner L. (2020). An interactive web-based dashboard to track COVID-19 in real time. Lancet Infect Dis2020:S1473-3099(20)30120-1. doi:10.1016/S1473-3099(20)30120-1. pmid:32087114.
 
-Hu B., Guo H., Zhou P. et al. (2020). Characteristics of SARS-CoV-2 and COVID-19. Nat Rev Microbiol. https://doi.org/10.1038/s41579-020-00459-7.
+Hu B., Guo H., Zhou P.ï¿½et al.ï¿½(2020). Characteristics of SARS-CoV-2 and COVID-19.ï¿½Nat Rev Microbiol.ï¿½https://doi.org/10.1038/s41579-020-00459-7.
 
-Huang C. et al. (2020). Clinical features of patients infected with 2019 novel coronavirus in Wuhan, China. Lancet 395, 497?506.
+Huang C. et al. (2020). Clinical features of patients infected with 2019 novel coronavirus in Wuhan, China.ï¿½Lancetï¿½395, 497?506.
 
-Mehta P. et al. (2020). COVID-19: consider cytokine storm syndromes and immunosuppression. Lancet 395, 1033?1034.
+Mehta P. et al. (2020). COVID-19: consider cytokine storm syndromes and immunosuppression.ï¿½Lancetï¿½395, 1033?1034.
 
 Wong H.Y.F., Lam H.Y.S., Fong A. H-T. et al. (2020). Frequency and distribution of chest radiographic findings in patients positive for COVID-19. Radiology 296(2), E78. 
 
