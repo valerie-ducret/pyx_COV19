@@ -1,3 +1,4 @@
+<div style="text-align: justify">
 # Pyx_COV19:
 # A projet to detect COVID-19 from X-rays using Convolutional Neural Networks.
 *A journey with artificial intelligence in service of medical diagnosis*
@@ -5,8 +6,8 @@
 ![Lung Image](/static/lungs_AI.jpg)
 
 The objective of this data science project was to build a multiclass classification model that can accurately predict COVID-19 from chest X-rays.
-The data (images and labels) originates from [Kaggle](https://www.kaggle.com/tawsifurrahman/covid19-radiography-database)
-All details about our project, the model generated, the classification's results and the direct use of our deep learning model, can be found on our [Streamlit](https://share.streamlit.io/valerie-ducret/pyx_cov19/main/xray_app.py) app
+The data (images and labels) originates from [Kaggle](https://www.kaggle.com/tawsifurrahman/covid19-radiography-database).
+All details about our project, the model generated, the classification's results and the direct use of our deep learning model, can be found on our [Streamlit](https://share.streamlit.io/valerie-ducret/pyx_cov19/main/xray_app.py) app.
 
 # Installation (local)
 
@@ -30,10 +31,10 @@ python3 -m venv .venv
 # Activate your virtual environment
 source .venv/bin/activate
 ```
-## Install the recommanded python packages (for Python 3.7 or higher)
+## Install the recommanded python packages (for Python 3.6 or higher)
 
 ```bash
-python3 -m pip install -r requirements_tested.txt
+python3 -m pip install -r requirements.txt
 ```
 
 ## Run streamlit
@@ -44,12 +45,15 @@ streamlit run xray_app.py
 
 # Project's aims
 
-Coronaviruses are a diverse group of viruses infecting many different animals, and they can cause mild to severe respiratory infections in humans (Hu et al., 2020). In late 2019, a novel coronavirus designated as SARS-Cov-2 emerged in the city of Wuhan (China) and caused an outbreak of unusual viral pneumonia, called COVID-19, that rapidly developed as an unprecedented world sanitary crisis. One year after, about 74 million people all other the world has contracted COVID-19, and about 1.7 million people have died from it. This highly contagious virus, by binding to epithelial cells in the respiratory tract, starts replicating and migrating down to the airways and enters alveolar epithelial cells in the lungs. Fast replication of SARS-CoV-2 in the lungs may trigger a strong immune response (Hu et al., 2020). Thus, cytokine storm syndrome causes acute respiratory distress syndrome and respiratory failure, which is considered the main cause of death in patients with COVID-19 (Huang et al., 2020; Mehta et al., 2020). Therefore, this outbreak has led to drastic human and economic consequences for which we still do not gauge final magnitude. Despite public health responses trying to decrease contamination rate, the rapidly evolving situation conducted to a saturation of hospitalization demands and an increase in mortality rate. 
-	One efficient measure to contain the disease and delay the spread is active testing for COVID-19. By identifying contaminated people, public organization can take measures to isolate and limit contacts with the infected ones. Indeed, without testing, it is impossible to discriminate COVID-19 from other virus like influenza responsible for the flu, because symptoms are very similar depending on the severity of COVID-19. The gold-standard tests that detect viruses are RT-PCR (Real-Time Polymerase Chain Reaction). The high-sensitivity of PCR tests are almost 100% accurate in spotting infected people, when they are administered properly. But such tests generally require trained personnel, specific reagents that are lacking in periods of high demands, and expensive machines that take time to provide results. Therefore, other methods were developed to detect COVID-19 rapidly and efficiently. For instance, antigen assays are faster and cheaper than PCR tests, but are not as sensitive and could miss infectious people. Other alternative methods incorporating analysis of chest radiographies (computed tomography CT-scans and X-rays) may assist in identifying false negative RT-PCR cases or when RT-PCR tests are unavailable. However, it is tricky and time-consuming for radiologists to discriminate COVID-19 from other viral pneumonia by eye.
+Coronaviruses are a diverse group of viruses infecting many different animals, and they can cause mild to severe respiratory infections in humans (Hu et al., 2020. In late 2019, a novel coronavirus designated as SARS-Cov-2 emerged in the city of Wuhan (China) and caused an outbreak of unusual viral pneumonia, called COVID-19, that rapidly developed as an unprecedented world sanitary crisis. One year after, about 74 million people all other the world has contracted COVID-19, and about 1.7 million people have died from it. This highly contagious virus, by binding to epithelial cells in the respiratory tract, starts replicating and migrating down to the airways and enters alveolar epithelial cells in the lungs. Fast replication of SARS-CoV-2 in the lungs may trigger a strong immune response (Hu et al., 2020). Thus, cytokine storm syndrome causes acute respiratory distress syndrome and respiratory failure, which is considered the main cause of death in patients with COVID-19 (Huang et al., 2020; Mehta et al., 2020). Therefore, this outbreak has led to drastic human and economic consequences for which we still do not gauge final magnitude. Despite public health responses trying to decrease contamination rate, the rapidly evolving situation conducted to a saturation of hospitalization demands and an increase in mortality rate.
+
+One efficient measure to contain the disease and delay the spread is active testing for COVID-19. By identifying contaminated people, public organization can take measures to isolate and limit contacts with the infected ones. Indeed, without testing, it is impossible to discriminate COVID-19 from other virus like influenza responsible for the flu, because symptoms are very similar depending on the severity of COVID-19. The gold-standard tests that detect viruses are RT-PCR (Real-Time Polymerase Chain Reaction). The high-sensitivity of PCR tests are almost 100% accurate in spotting infected people, when they are administered properly. But such tests generally require trained personnel, specific reagents that are lacking in periods of high demands, and expensive machines that take time to provide results. Therefore, other methods were developed to detect COVID-19 rapidly and efficiently. For instance, antigen assays are faster and cheaper than PCR tests, but are not as sensitive and could miss infectious people. Other alternative methods incorporating analysis of chest radiographies (computed tomography CT-scans and X-rays) may assist in identifying false negative RT-PCR cases or when RT-PCR tests are unavailable. However, it is tricky and time-consuming for radiologists to discriminate COVID-19 from other viral pneumonia by eye.
+
 Today, computer vision is assisting an increasing number of doctors to better diagnose their patients, monitor the evolution of diseases, and prescribe the right treatments. It is an emerging field that takes advantage of artificial intelligence algorithms that process images and often make a faster and more accurate diagnosis than humans could do. Potential application of computer vision systems is minimizing false positives in the diagnostic process or detect the slightest presence of a condition. One difficulty for radiologists comes down to discriminating between a ?classical? viral pneumonia and pneumonia caused by COVID-19. A study demonstrates that radiologists had high specificity (true negative rate) but moderate sensitivity (true positive rate) in differentiating COVID-19 from viral pneumonia on chest CT-scans (Bai et al., 2020). Also, analyses of chest X-rays and CT-scans may show different sensitivities in detecting COVID-19. Despite that chest X-ray abnormalities of COVID-19 mirror those of CT-scans, less dense opacities may be more difficult to detect by eye and conduct to a sensitivity of 69% compared to generally more than 90% for CT-scans (Wong et al., 2020). Therefore, the use of such methodology could highly help mitigate the burden on the healthcare system by providing accurate models that detect COVID-19 on CT-scans (Ahuja et al., 2020) and particularly on chest X-rays that show moderate sensitivity.
 
 
 # Data
+
 The initial data consist of 2905 images:
 *	219 images of COVID-19 X-rays (which represent about 7.5% of total data)
 *	1341 images of normal X-rays (which represent 46.2% of total data)
@@ -101,10 +105,10 @@ Therefore, we could demonstrate the very efficient method of deep transfer learn
 # References 
 
 * Ahuja S., Panigrahi B.K., Dey N. et al. (2020). Deep transfer learning-based automated detection of COVID-19 from lung CT scan slices. Appl Intell. https://doi.org/10.1007/s10489-020-01826-w.
-* Bai H., Hsieh B., Xiong Z. et al. (2020). Performance of radiologists in differentiating COVID-19 from viral pneumonia on chest CT. Radiology, doi:10.1148/radiol.2020200823.
-* Dong E., Du H., Gardner L. (2020). An interactive web-based dashboard to track COVID-19 in real time. Lancet Infect Dis2020:S1473-3099(20)30120-1. doi:10.1016/S1473-3099(20)30120-1. pmid:32087114.
+* Bai H., Hsieh B., Xiong Z. et al. (2020). Performance of radiologists in differentiating COVID-19 from viral pneumonia on chest CT. Radiology, https://doi:10.1148/radiol.2020200823.
+* Dong E., Du H., Gardner L. (2020). An interactive web-based dashboard to track COVID-19 in real time. Lancet Infect Dis2020:S1473-3099(20)30120-1. https://doi:10.1016/S1473-3099(20)30120-1. pmid:32087114.
 * Hu B., Guo H., Zhou P. et al. (2020). Characteristics of SARS-CoV-2 and COVID-19. Nat Rev Microbiol.https://doi.org/10.1038/s41579-020-00459-7.
-* Huang C. et al. (2020). Clinical features of patients infected with 2019 novel coronavirus in Wuhan, China. Lancet 395, 497?506.
-* Mehta P. et al. (2020). COVID-19: consider cytokine storm syndromes and immunosuppression. Lancet 395, 1033?1034.
-* Wong H.Y.F., Lam H.Y.S., Fong A. H-T. et al. (2020). Frequency and distribution of chest radiographic findings in patients positive for COVID-19. Radiology 296(2), E78. 
+* Huang C. et al. (2020). Clinical features of patients infected with 2019 novel coronavirus in Wuhan, China. Lancet 395, 497:506.
+* Mehta P. et al. (2020). COVID-19: consider cytokine storm syndromes and immunosuppression. Lancet 395, 1033:1034.
+* Wong H.Y.F., Lam H.Y.S., Fong A. H-T. et al. (2020). Frequency and distribution of chest radiographic findings in patients positive for COVID-19. Radiology 296(2), E78. </div>
 
