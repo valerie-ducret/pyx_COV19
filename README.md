@@ -60,9 +60,11 @@ Today, computer vision is assisting an increasing number of doctors to better di
 
 <p align="justify">
 The initial data consist of 2905 images:
+
 *	219 images of COVID-19 X-rays (which represent about 7.5% of total data)
 *	1341 images of normal X-rays (which represent 46.2% of total data)
 *	1345 images of viral pneumonia X-rays (which represent 46.3% of total data)
+
 The initial data have a size of 1024x1024 pixels. Most of the images are in grayscale but few of them show blue hues.
 Note: On December the 12th of 2020, the number of images in the COVID-19 category from Kaggle increased to 1143 and the images were resized to 256x256 pixels.
 </p>
@@ -83,6 +85,7 @@ The data were split in two parts with respect to the proportion of data between 
 <p align="justify">
 We started to manually construct a convolutional neural network (CNN) model that first extract the features from images using filters and then classify using a multi-layer perceptron. However, the model was surely too complex, the accuracy was particularly low and the model not robust. Therefore, we decided to use the transfer learning technique, that permits to reduce the pre-processing part and gain accuracy for classification. We decided to use a pre-trained VGG16 model on ImageNet as it achieves top-5 test accuracy. 
 As far as the data augmentation technique is concerned, the following modifications were applied to the batch of images on the training and test set:
+
 *	Rescaling pixel values between 0 and 1 by dividing them by 255
 *	Random rotations with a range of 10 degrees
 *	Random zoom with a range between 0.9 and 1.1
@@ -94,6 +97,7 @@ Only the horizontal flip was not applied to the batch of images in the test set.
 
 <p align="justify">
 The pre-trained VGG-16 model was imported for feature extraction and used as entries for the image classification, with the following layers:
+
 *	Global Average Pooling 2D
 *	Flatten
 *	Dense with 256 units and ReLU activation function
@@ -125,6 +129,7 @@ Therefore, we could demonstrate the very efficient method of deep transfer learn
 # References 
 
 <p align="justify">
+
 * Ahuja S., Panigrahi B.K., Dey N. et al. (2020). Deep transfer learning-based automated detection of COVID-19 from lung CT scan slices. Appl Intell. https://doi.org/10.1007/s10489-020-01826-w.
 * Bai H., Hsieh B., Xiong Z. et al. (2020). Performance of radiologists in differentiating COVID-19 from viral pneumonia on chest CT. Radiology, https://doi:10.1148/radiol.2020200823.
 * Dong E., Du H., Gardner L. (2020). An interactive web-based dashboard to track COVID-19 in real time. Lancet Infect Dis2020:S1473-3099(20)30120-1. https://doi:10.1016/S1473-3099(20)30120-1. pmid:32087114.
